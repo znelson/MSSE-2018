@@ -1,0 +1,148 @@
+
+MODULE main
+	VAR
+		-- input variables
+		
+		inNSWalkRequest : boolean;
+		inWEWalkRequest : boolean;
+
+		inNSEmergency : boolean;
+		inWEEmergency : boolean;
+		-- inEmergency : boolean;
+
+		inNSCarsWaiting : boolean;
+		inWECarsWaiting : boolean;
+
+		-- output variables
+
+		outNSCarLight : {Green, Yellow, Red};
+		outWECarLight : {Green, Yellow, Red};
+
+		outNSWalkLight : {Walk, Stop};
+		outWEWalkLight : {Walk, Stop};
+
+		-- state variables
+
+		trafficMode : {NSGo, NSSlow, NSStop, WEGo, WESlow, WEStop, ResetTrafficMode};
+
+	DEFINE
+		emergency := inNSEmergency | inWEEmergency;
+		-- emergency := inEmergency;
+		redEverywhere := outNSCarLight = Red & outWECarLight = Red;
+		yellowAnywhere := trafficMode in {NSSlow, WESlow};
+		greenAnywhere := trafficMode in {NSGo, WEGo};
+		WEWaiting := inWEWalkRequest | inWECarsWaiting;
+		NSWaiting := inNSWalkRequest | inNSCarsWaiting;
+
+	ASSIGN
+
+
+		init(trafficMode) := ResetTrafficMode;
+		next(trafficMode) :=
+			case
+				--trafficMode=NSSlow & emergency	: NSStop;
+				--trafficMode=WESlow & emergency	: WEStop;
+
+				--emergency						: trafficMode;
+
+				--(trafficMode=NSSlow | trafficMode=WESlow) &
+				--emergency  : ResetTrafficMode;
+
+				trafficMode=ResetTrafficMode & !emergency	: NSGo;
+				trafficMode=NSGo & (WEWaiting | emergency)			: NSSlow;
+				trafficMode=NSSlow				: NSStop;
+				trafficMode=NSStop & !emergency : WEGo;
+				trafficMode=WEGo & (NSWaiting | emergency)			: WESlow;
+				trafficMode=WESlow				: WEStop;
+				trafficMode=WEStop & !emergency	: NSGo;
+				TRUE							: trafficMode;
+			esac;
+
+		init(outNSCarLight) := Red;
+		next(outNSCarLight) := 
+			case
+				next(trafficMode)=NSGo			: Green;
+				next(trafficMode)=NSSlow		: Yellow;
+				TRUE							: Red;
+			esac;
+
+		init(outWECarLight) := Red;
+		next(outWECarLight) := 
+			case
+				next(trafficMode)=WEGo			: Green;
+				next(trafficMode)=WESlow		: Yellow;
+				TRUE							: Red;
+			esac;
+
+		init(outNSWalkLight) := Stop;
+		next(outNSWalkLight) := 
+			case
+				next(trafficMode)=NSGo			: Walk;
+				TRUE							: Stop;
+			esac;
+
+		init(outWEWalkLight) := Stop;
+		next(outWEWalkLight) := 
+			case
+				next(trafficMode)=WEGo			: Walk;
+				TRUE							: Stop;
+			esac;
+
+	
+	-- specs
+	-- FAIRNESS outNSCarLight = Green
+
+	--JUSTICE !inEmergency;
+	JUSTICE inNSEmergency;
+	JUSTICE !inNSEmergency;
+	JUSTICE inWEEmergency;
+	JUSTICE !inWEEmergency;
+	JUSTICE emergency;
+	JUSTICE !emergency;
+
+	JUSTICE inNSCarsWaiting;
+	JUSTICE !inNSCarsWaiting;
+	JUSTICE inWECarsWaiting;
+	JUSTICE !inWECarsWaiting;
+
+	JUSTICE inNSWalkRequest;
+	JUSTICE !inNSWalkRequest;
+	JUSTICE inWEWalkRequest;
+	JUSTICE !inWEWalkRequest;
+
+	-- Liveness property:
+	CTLSPEC AG(inNSCarsWaiting -> AF(outNSCarLight = Green | !inNSCarsWaiting))
+	CTLSPEC AG(inWECarsWaiting -> AF(outWECarLight = Green | !inWECarsWaiting))
+	CTLSPEC AG(inNSWalkRequest -> AF(outNSWalkLight = Walk | !inNSWalkRequest))
+	CTLSPEC AG(inNSWalkRequest -> AF(outWEWalkLight = Walk | !inNSWalkRequest))
+
+	-- Safety property:
+	CTLSPEC AG(outNSCarLight = Red | outWECarLight = Red)
+	CTLSPEC AG(outNSCarLight != Red -> outWEWalkLight = Stop)
+	CTLSPEC AG(outWECarLight != Red -> outNSWalkLight = Stop)
+	CTLSPEC AG(outNSCarLight = Yellow -> AX redEverywhere)
+	CTLSPEC AG(outWECarLight = Yellow -> AX redEverywhere)
+
+	CTLSPEC AG((emergency & greenAnywhere) -> AX(AX(redEverywhere)))
+	CTLSPEC AG((emergency & yellowAnywhere) -> AX(redEverywhere))
+	CTLSPEC AG((emergency & redEverywhere) -> AX(redEverywhere))
+	CTLSPEC AG(emergency -> AF(redEverywhere))
+	CTLSPEC AG(!emergency & outNSCarLight = Green & !WEWaiting -> AX(outNSCarLight = Green))
+	CTLSPEC AG(!emergency & outWECarLight = Green & !NSWaiting -> AX(outWECarLight = Green))
+
+	LTLSPEC G(Y(outNSCarLight = Green) & X(outNSCarLight = Red) -> outNSCarLight = Yellow)
+	LTLSPEC G(Y(outWECarLight = Green) & X(outWECarLight = Red) -> outWECarLight = Yellow)
+
+CTLSPEC !EF(outWECarLight = Green & EF(outNSCarLight = Green & EF(outWECarLight = Green)))
+
+	-- LTLSPEC outNSCarLight = green -> 
+
+	--CTLSPEC AG(outNSCarLight = Green -> AF outNSCarLight = Yellow)
+	--CTLSPEC AG(outWECarLight = Green -> AF outWECarLight = Yellow)
+
+	--LTLSPEC G(outNSCarLight=Red ->H(outNSCarLight = Yellow))
+
+
+
+
+
