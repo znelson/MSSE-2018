@@ -8,7 +8,6 @@ MODULE main
 
 		inNSEmergency : boolean;
 		inWEEmergency : boolean;
-		-- inEmergency : boolean;
 
 		inNSCarsWaiting : boolean;
 		inWECarsWaiting : boolean;
@@ -27,12 +26,16 @@ MODULE main
 
 	DEFINE
 		emergency := inNSEmergency | inWEEmergency;
-		-- emergency := inEmergency;
+		
 		redEverywhere := outNSCarLight = Red & outWECarLight = Red;
+		
 		yellowAnywhere := trafficMode in {NSSlow, WESlow};
+		
 		greenAnywhere := trafficMode in {NSGo, WEGo};
-		WEWaiting := inWEWalkRequest | inWECarsWaiting;
-		NSWaiting := inNSWalkRequest | inNSCarsWaiting;
+
+		waitingWE := inWEWalkRequest | inWECarsWaiting;
+
+		waitingNS := inNSWalkRequest | inNSCarsWaiting;
 
 	ASSIGN
 
@@ -40,52 +43,50 @@ MODULE main
 		init(trafficMode) := ResetTrafficMode;
 		next(trafficMode) :=
 			case
-				--trafficMode=NSSlow & emergency	: NSStop;
-				--trafficMode=WESlow & emergency	: WEStop;
+				trafficMode=ResetTrafficMode & !emergency		: NSGo;
 
-				--emergency						: trafficMode;
+				trafficMode=NSGo & (waitingWE | emergency)		: NSSlow;
 
-				--(trafficMode=NSSlow | trafficMode=WESlow) &
-				--emergency  : ResetTrafficMode;
+				trafficMode=NSSlow								: NSStop;
 
-				trafficMode=ResetTrafficMode & !emergency	: NSGo;
-				trafficMode=NSGo & (WEWaiting | emergency)			: NSSlow;
-				trafficMode=NSSlow				: NSStop;
 				trafficMode=NSStop & !emergency : WEGo;
-				trafficMode=WEGo & (NSWaiting | emergency)			: WESlow;
-				trafficMode=WESlow				: WEStop;
-				trafficMode=WEStop & !emergency	: NSGo;
-				TRUE							: trafficMode;
+				trafficMode=WEGo & (waitingNS | emergency)		: WESlow;
+
+				trafficMode=WESlow								: WEStop;
+
+				trafficMode=WEStop & !emergency					: NSGo;
+
+				TRUE											: trafficMode;
 			esac;
 
 		init(outNSCarLight) := Red;
 		next(outNSCarLight) := 
 			case
-				next(trafficMode)=NSGo			: Green;
-				next(trafficMode)=NSSlow		: Yellow;
-				TRUE							: Red;
+				next(trafficMode)=NSGo							: Green;
+				next(trafficMode)=NSSlow						: Yellow;
+				TRUE											: Red;
 			esac;
 
 		init(outWECarLight) := Red;
 		next(outWECarLight) := 
 			case
-				next(trafficMode)=WEGo			: Green;
-				next(trafficMode)=WESlow		: Yellow;
-				TRUE							: Red;
+				next(trafficMode)=WEGo							: Green;
+				next(trafficMode)=WESlow						: Yellow;
+				TRUE											: Red;
 			esac;
 
 		init(outNSWalkLight) := Stop;
 		next(outNSWalkLight) := 
 			case
-				next(trafficMode)=NSGo			: Walk;
-				TRUE							: Stop;
+				next(trafficMode)=NSGo							: Walk;
+				TRUE											: Stop;
 			esac;
 
 		init(outWEWalkLight) := Stop;
 		next(outWEWalkLight) := 
 			case
-				next(trafficMode)=WEGo			: Walk;
-				TRUE							: Stop;
+				next(trafficMode)=WEGo							: Walk;
+				TRUE											: Stop;
 			esac;
 
 	
@@ -127,13 +128,13 @@ MODULE main
 	CTLSPEC AG((emergency & yellowAnywhere) -> AX(redEverywhere))
 	CTLSPEC AG((emergency & redEverywhere) -> AX(redEverywhere))
 	CTLSPEC AG(emergency -> AF(redEverywhere))
-	CTLSPEC AG(!emergency & outNSCarLight = Green & !WEWaiting -> AX(outNSCarLight = Green))
-	CTLSPEC AG(!emergency & outWECarLight = Green & !NSWaiting -> AX(outWECarLight = Green))
+	CTLSPEC AG(!emergency & outNSCarLight = Green & !waitingWE -> AX(outNSCarLight = Green))
+	CTLSPEC AG(!emergency & outWECarLight = Green & !waitingNS -> AX(outWECarLight = Green))
 
 	LTLSPEC G(Y(outNSCarLight = Green) & X(outNSCarLight = Red) -> outNSCarLight = Yellow)
 	LTLSPEC G(Y(outWECarLight = Green) & X(outWECarLight = Red) -> outWECarLight = Yellow)
 
-CTLSPEC !EF(outWECarLight = Green & EF(outNSCarLight = Green & EF(outWECarLight = Green)))
+	-- CTLSPEC !EF(outWECarLight = Green & EF(outNSCarLight = Green & EF(outWECarLight = Green)))
 
 	-- LTLSPEC outNSCarLight = green -> 
 
@@ -141,8 +142,4 @@ CTLSPEC !EF(outWECarLight = Green & EF(outNSCarLight = Green & EF(outWECarLight 
 	--CTLSPEC AG(outWECarLight = Green -> AF outWECarLight = Yellow)
 
 	--LTLSPEC G(outNSCarLight=Red ->H(outNSCarLight = Yellow))
-
-
-
-
 
