@@ -3,20 +3,25 @@ MODULE main
 	VAR
 		-- input variables
 		
+		-- input variables representing pedestrian walk requests in two directions
 		inNSWalkRequest : boolean;
 		inWEWalkRequest : boolean;
 
+		-- input variables representing emergency vehicle presence in two directions
 		inNSEmergency : boolean;
 		inWEEmergency : boolean;
 
+		-- input variables representing cars waiting in two directions
 		inNSCarsWaiting : boolean;
 		inWECarsWaiting : boolean;
 
 		-- output variables
 
+		-- output variables representing the color of the traffic lights in two directions
 		outNSCarLight : {Green, Yellow, Red};
 		outWECarLight : {Green, Yellow, Red};
 
+		-- output variables representing the state of the pedestrian walk lights in two directions
 		outNSWalkLight : {Walk, Stop};
 		outWEWalkLight : {Walk, Stop};
 
@@ -90,56 +95,71 @@ MODULE main
 			esac;
 
 	
-	-- specs
-	-- FAIRNESS outNSCarLight = Green
-
-	--JUSTICE !inEmergency;
-	JUSTICE inNSEmergency;
-	JUSTICE !inNSEmergency;
-	JUSTICE inWEEmergency;
-	JUSTICE !inWEEmergency;
-	JUSTICE emergency;
+	-- Justice statement to prevent infinite emergencies either direction.
 	JUSTICE !emergency;
 
-	JUSTICE inNSCarsWaiting;
-	JUSTICE !inNSCarsWaiting;
-	JUSTICE inWECarsWaiting;
-	JUSTICE !inWECarsWaiting;
+	-- Justice statement to prevent infinite cars or pedestrians waiting in either direction.
+	JUSTICE !waitingWE;
+	JUSTICE waitingWE;
+	JUSTICE !waitingNS;
+	JUSTICE waitingNS;
 
-	JUSTICE inNSWalkRequest;
-	JUSTICE !inNSWalkRequest;
-	JUSTICE inWEWalkRequest;
-	JUSTICE !inWEWalkRequest;
 
-	-- Liveness property:
+	-- Liveness properties:
+	-----------------------
+
+	-- If cars are waiting, they will eventually get to go (or stop waiting)
 	CTLSPEC AG(inNSCarsWaiting -> AF(outNSCarLight = Green | !inNSCarsWaiting))
 	CTLSPEC AG(inWECarsWaiting -> AF(outWECarLight = Green | !inWECarsWaiting))
+
+	-- If pedestrians are waiting, they will eventually get to walk (or stop waiting)
 	CTLSPEC AG(inNSWalkRequest -> AF(outNSWalkLight = Walk | !inNSWalkRequest))
 	CTLSPEC AG(inNSWalkRequest -> AF(outWEWalkLight = Walk | !inNSWalkRequest))
 
-	-- Safety property:
+	
+	-- Safety properties:
+	---------------------
+
+	-- One of the two directions always show a Red light
 	CTLSPEC AG(outNSCarLight = Red | outWECarLight = Red)
-	CTLSPEC AG(outNSCarLight != Red -> outWEWalkLight = Stop)
-	CTLSPEC AG(outWECarLight != Red -> outNSWalkLight = Stop)
+	CTLSPEC AG(outNSWalkLight = Stop | outWEWalkLight = Stop)
+
+	-- When pedestrians have a Walk light, the opposite direction car light is Red
+	CTLSPEC AG(outNSWalkLight = Walk -> outWECarLight = Red)
+	CTLSPEC AG(outWEWalkLight = Walk -> outNSCarLight = Red)
+
+	-- Immediately after a Yellow light, all lights turn Red
 	CTLSPEC AG(outNSCarLight = Yellow -> AX redEverywhere)
 	CTLSPEC AG(outWECarLight = Yellow -> AX redEverywhere)
 
+	
+	-- Emergency vehicles:
+	----------------------
+
+	-- If an emergency vehicle arrives and a light is Green, all lights will turn Red in exactly 2 steps
 	CTLSPEC AG((emergency & greenAnywhere) -> AX(AX(redEverywhere)))
+	-- If an emergency vehicle arrives and a light is Yellow, all lights will turn Red in exactly 1 step
 	CTLSPEC AG((emergency & yellowAnywhere) -> AX(redEverywhere))
+	-- If an emergency vehicle arrives and all lights are Red, all lights will remain Red in the next step
 	CTLSPEC AG((emergency & redEverywhere) -> AX(redEverywhere))
-	CTLSPEC AG(emergency -> AF(redEverywhere))
+
+	-- If there are no emergency vehicles, and no cars or pedestrians waiting, lights will remain Green.
 	CTLSPEC AG(!emergency & outNSCarLight = Green & !waitingWE -> AX(outNSCarLight = Green))
 	CTLSPEC AG(!emergency & outWECarLight = Green & !waitingNS -> AX(outWECarLight = Green))
 
+	-- Each light will go to Yellow between Green and Red
 	LTLSPEC G(Y(outNSCarLight = Green) & X(outNSCarLight = Red) -> outNSCarLight = Yellow)
 	LTLSPEC G(Y(outWECarLight = Green) & X(outWECarLight = Red) -> outWECarLight = Yellow)
 
-	-- CTLSPEC !EF(outWECarLight = Green & EF(outNSCarLight = Green & EF(outWECarLight = Green)))
 
-	-- LTLSPEC outNSCarLight = green -> 
+	-- Anti-properties:
+	-------------------
 
-	--CTLSPEC AG(outNSCarLight = Green -> AF outNSCarLight = Yellow)
-	--CTLSPEC AG(outWECarLight = Green -> AF outWECarLight = Yellow)
+	-- The lights can fail to cycle (eventually) from Green North-South -> Green West-East -> Green North-South
+	-- ("The lights are stuck!")
+	CTLSPEC !EF(outWECarLight = Green & EF(outNSCarLight = Green & EF(outWECarLight = Green)))
 
-	--LTLSPEC G(outNSCarLight=Red ->H(outNSCarLight = Yellow))
+	-- Walk lights can be on in both directions
+	-- ("This intersection eventually lets everybody walk at once!")
+	CTLSPEC EF(outWEWalkLight = Walk & outNSWalkLight = Walk)
 
