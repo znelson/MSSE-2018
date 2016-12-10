@@ -1,0 +1,267 @@
+--------------------------------------------------------
+--  File created - Saturday-December-10-2016   
+--------------------------------------------------------
+--------------------------------------------------------
+--  DDL for Table HERO
+--------------------------------------------------------
+
+  CREATE TABLE "F16S5707G2"."HERO" 
+   (	"HERO_NAME" NVARCHAR2(64), 
+	"HERO_GENDER" NVARCHAR2(20)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1 BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  DDL for Table HERO_CARD
+--------------------------------------------------------
+
+  CREATE TABLE "F16S5707G2"."HERO_CARD" 
+   (	"NAME" NVARCHAR2(64), 
+	"COUNT" NUMBER(*,0), 
+	"RECRUIT" NUMBER(*,0), 
+	"CLASS" NVARCHAR2(64), 
+	"TEAM" NVARCHAR2(64), 
+	"HERO" NVARCHAR2(64), 
+	"ATTACK" NUMBER(*,0), 
+	"COST" NUMBER(*,0)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1 BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  DDL for Table HERO_CLASS
+--------------------------------------------------------
+
+  CREATE TABLE "F16S5707G2"."HERO_CLASS" 
+   (	"CLASS_NAME" NVARCHAR2(64), 
+	"COLOR" NVARCHAR2(64)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1 BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  DDL for Table HERO_GENDER
+--------------------------------------------------------
+
+  CREATE TABLE "F16S5707G2"."HERO_GENDER" 
+   (	"GENDER" NVARCHAR2(20)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1 BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  DDL for Table HERO_TEAM
+--------------------------------------------------------
+
+  CREATE TABLE "F16S5707G2"."HERO_TEAM" 
+   (	"TEAM_NAME" NVARCHAR2(64)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1 BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
+  TABLESPACE "USERS" ;
+REM INSERTING into F16S5707G2.HERO
+SET DEFINE OFF;
+Insert into F16S5707G2.HERO (HERO_NAME,HERO_GENDER) values ('Black Widow','Female');
+Insert into F16S5707G2.HERO (HERO_NAME,HERO_GENDER) values ('Wolverine','Male');
+Insert into F16S5707G2.HERO (HERO_NAME,HERO_GENDER) values ('Thor','Male');
+Insert into F16S5707G2.HERO (HERO_NAME,HERO_GENDER) values ('Storm','Female');
+Insert into F16S5707G2.HERO (HERO_NAME,HERO_GENDER) values ('Spider-Man','Male');
+Insert into F16S5707G2.HERO (HERO_NAME,HERO_GENDER) values ('Rogue','Female');
+Insert into F16S5707G2.HERO (HERO_NAME,HERO_GENDER) values ('Nick Fury','Male');
+Insert into F16S5707G2.HERO (HERO_NAME,HERO_GENDER) values ('Iron Man','Male');
+Insert into F16S5707G2.HERO (HERO_NAME,HERO_GENDER) values ('Hulk','Male');
+Insert into F16S5707G2.HERO (HERO_NAME,HERO_GENDER) values ('Hawkeye','Male');
+Insert into F16S5707G2.HERO (HERO_NAME,HERO_GENDER) values ('Gambit','Male');
+Insert into F16S5707G2.HERO (HERO_NAME,HERO_GENDER) values ('Emma Frost','Female');
+Insert into F16S5707G2.HERO (HERO_NAME,HERO_GENDER) values ('Deadpool','Male');
+Insert into F16S5707G2.HERO (HERO_NAME,HERO_GENDER) values ('Cyclops','Male');
+Insert into F16S5707G2.HERO (HERO_NAME,HERO_GENDER) values ('Captain America','Male');
+REM INSERTING into F16S5707G2.HERO_CARD
+SET DEFINE OFF;
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Silent Sniper',1,null,'Reflexes','Avengers','Black Widow',4,7);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Berserker Rage',1,null,'Intuition','X-Men','Wolverine',0,8);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('God Of Thunder',1,5,'Ranged','Avengers','Thor',0,8);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Tidal Wave',1,null,'Ranged','X-Men','Storm',5,7);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('The Amazing Spider-Man',1,null,'Reflexes','Spider-Friends','Spider-Man',null,2);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Steal Abilities',1,null,'Strength','X-Men','Rogue',4,8);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Pure Fury',1,null,'Tech','Shield','Nick Fury',null,8);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Quantum Breakthrough',1,null,'Tech','Avengers','Iron Man',null,7);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Hulk Smash!',1,null,'Strength','Avengers','Hulk',5,8);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Impossible Trick Shot',1,null,'Tech','Avengers','Hawkeye',5,7);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('High Stakes Jackpot',1,null,'Intuition','X-Men','Gambit',4,7);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Diamond Form',1,null,'Strength','X-Men','Emma Frost',5,7);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Random Acts Of Unkindness',1,null,'Intuition',null,'Deadpool',6,7);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('X-Men United',1,null,'Ranged','X-Men','Cyclops',6,8);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('A Day Unlike Any Other',1,null,'Reflexes','Avengers','Captain America',3,7);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Covert Operation',3,null,'Reflexes','Avengers','Black Widow',0,4);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Frenzied Slashing',3,null,'Intuition','X-Men','Wolverine',2,5);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Call Lightning',3,null,'Ranged','Avengers','Thor',3,6);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Spinning Cyclone',3,null,'Reflexes','X-Men','Storm',4,6);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Web-Shooters',3,null,'Tech','Spider-Friends','Spider-Man',null,2);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Copy Powers',3,null,'Reflexes','X-Men','Rogue',null,5);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Legendary Commander',3,null,'Strength','Shield','Nick Fury',1,6);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Arc Reactor',3,null,'Tech','Avengers','Iron Man',3,5);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Crazed Rampage',3,null,'Strength','Avengers','Hulk',4,5);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Covering Fire',3,null,'Tech','Avengers','Hawkeye',3,5);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Card Shark',3,null,'Ranged','X-Men','Gambit',2,4);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Psychic Link',3,null,'Intuition','X-Men','Emma Frost',3,5);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Oddball',3,null,'Reflexes',null,'Deadpool',2,5);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Unending Energy',3,null,'Ranged','X-Men','Cyclops',4,6);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Diving Block',3,null,'Tech','Avengers','Captain America',4,6);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Mission Accomplished',5,null,'Tech','Avengers','Black Widow',null,2);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Healing Factor',5,null,'Intuition','X-Men','Wolverine',2,3);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Surge Of Power',5,2,'Ranged','Avengers','Thor',0,4);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Gathering Stormclouds',5,2,'Ranged','X-Men','Storm',null,3);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Great Responsibility',5,null,'Intuition','Spider-Friends','Spider-Man',1,2);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Borrowed Brawn',5,null,'Strength','X-Men','Rogue',1,4);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('High-Tech Weaponry',5,null,'Tech','Shield','Nick Fury',2,3);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Endless Invention',5,null,'Tech','Avengers','Iron Man',null,3);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Unstoppable Hulk',5,null,'Intuition','Avengers','Hulk',2,4);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Team Player',5,null,'Tech','Avengers','Hawkeye',2,4);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Stack The Deck',5,null,'Reflexes','X-Men','Gambit',null,2);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Mental Discipline',5,1,'Ranged','X-Men','Emma Frost',null,3);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Hey, Can I Get A Do-Over?',5,null,'Intuition',null,'Deadpool',2,3);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Optic Blast',5,null,'Ranged','X-Men','Cyclops',3,3);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Perfect Teamwork',5,null,'Strength','Avengers','Captain America',0,4);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Dangerous Rescue',5,null,'Reflexes','Avengers','Black Widow',2,3);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Keen Senses',5,null,'Intuition','X-Men','Wolverine',1,2);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Odinson',5,2,'Strength','Avengers','Thor',null,3);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Lightning Bolt',5,null,'Ranged','X-Men','Storm',2,4);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Astonishing Strength',5,1,'Strength','Spider-Friends','Spider-Man',null,2);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Energy Drain',5,2,'Reflexes','X-Men','Rogue',null,3);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Battlefield Promotion',5,null,'Reflexes','Shield','Nick Fury',null,4);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Repulsor Rays',5,null,'Ranged','Avengers','Iron Man',2,3);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Growing Anger',5,null,'Strength','Avengers','Hulk',2,3);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Quick Draw',5,null,'Intuition','Avengers','Hawkeye',1,3);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Hypnotic Charm',5,2,'Intuition','X-Men','Gambit',null,3);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Shadowed Thoughts',5,null,'Reflexes','X-Men','Emma Frost',2,4);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Here, Hold This For A Second',5,2,'Tech',null,'Deadpool',null,3);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Determination',5,3,'Strength','X-Men','Cyclops',null,2);
+Insert into F16S5707G2.HERO_CARD (NAME,COUNT,RECRUIT,CLASS,TEAM,HERO,ATTACK,COST) values ('Avengers Assemble!',5,0,'Intuition','Avengers','Captain America',null,3);
+REM INSERTING into F16S5707G2.HERO_CLASS
+SET DEFINE OFF;
+Insert into F16S5707G2.HERO_CLASS (CLASS_NAME,COLOR) values ('Strength','Green');
+Insert into F16S5707G2.HERO_CLASS (CLASS_NAME,COLOR) values ('Reflexes','Red');
+Insert into F16S5707G2.HERO_CLASS (CLASS_NAME,COLOR) values ('Ranged','Blue');
+Insert into F16S5707G2.HERO_CLASS (CLASS_NAME,COLOR) values ('Intuition','Yellow');
+Insert into F16S5707G2.HERO_CLASS (CLASS_NAME,COLOR) values ('Tech','Black');
+REM INSERTING into F16S5707G2.HERO_GENDER
+SET DEFINE OFF;
+Insert into F16S5707G2.HERO_GENDER (GENDER) values ('Female');
+Insert into F16S5707G2.HERO_GENDER (GENDER) values ('Male');
+REM INSERTING into F16S5707G2.HERO_TEAM
+SET DEFINE OFF;
+Insert into F16S5707G2.HERO_TEAM (TEAM_NAME) values ('Avengers');
+Insert into F16S5707G2.HERO_TEAM (TEAM_NAME) values ('Shield');
+Insert into F16S5707G2.HERO_TEAM (TEAM_NAME) values ('Spider-Friends');
+Insert into F16S5707G2.HERO_TEAM (TEAM_NAME) values ('X-Men');
+--------------------------------------------------------
+--  DDL for Index HERO_PK
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "F16S5707G2"."HERO_PK" ON "F16S5707G2"."HERO" ("HERO_NAME") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1 BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  DDL for Index CARD_PK
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "F16S5707G2"."CARD_PK" ON "F16S5707G2"."HERO_CARD" ("NAME") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1 BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  DDL for Index HERO_CLASS_PK
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "F16S5707G2"."HERO_CLASS_PK" ON "F16S5707G2"."HERO_CLASS" ("CLASS_NAME") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1 BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  DDL for Index HERO_GENDER_PK
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "F16S5707G2"."HERO_GENDER_PK" ON "F16S5707G2"."HERO_GENDER" ("GENDER") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1 BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  DDL for Index HERO_TEAM_PK
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "F16S5707G2"."HERO_TEAM_PK" ON "F16S5707G2"."HERO_TEAM" ("TEAM_NAME") 
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1 BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  Constraints for Table HERO
+--------------------------------------------------------
+
+  ALTER TABLE "F16S5707G2"."HERO" ADD CONSTRAINT "HERO_PK" PRIMARY KEY ("HERO_NAME")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1 BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
+  TABLESPACE "USERS"  ENABLE;
+ 
+  ALTER TABLE "F16S5707G2"."HERO" MODIFY ("HERO_NAME" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table HERO_CARD
+--------------------------------------------------------
+
+  ALTER TABLE "F16S5707G2"."HERO_CARD" ADD CONSTRAINT "CARD_PK" PRIMARY KEY ("NAME")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1 BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
+  TABLESPACE "USERS"  ENABLE;
+ 
+  ALTER TABLE "F16S5707G2"."HERO_CARD" MODIFY ("NAME" NOT NULL ENABLE);
+ 
+  ALTER TABLE "F16S5707G2"."HERO_CARD" MODIFY ("COUNT" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table HERO_CLASS
+--------------------------------------------------------
+
+  ALTER TABLE "F16S5707G2"."HERO_CLASS" ADD CONSTRAINT "HERO_CLASS_PK" PRIMARY KEY ("CLASS_NAME")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1 BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
+  TABLESPACE "USERS"  ENABLE;
+ 
+  ALTER TABLE "F16S5707G2"."HERO_CLASS" MODIFY ("CLASS_NAME" NOT NULL ENABLE);
+ 
+  ALTER TABLE "F16S5707G2"."HERO_CLASS" MODIFY ("COLOR" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table HERO_GENDER
+--------------------------------------------------------
+
+  ALTER TABLE "F16S5707G2"."HERO_GENDER" ADD CONSTRAINT "HERO_GENDER_PK" PRIMARY KEY ("GENDER")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1 BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
+  TABLESPACE "USERS"  ENABLE;
+ 
+  ALTER TABLE "F16S5707G2"."HERO_GENDER" MODIFY ("GENDER" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table HERO_TEAM
+--------------------------------------------------------
+
+  ALTER TABLE "F16S5707G2"."HERO_TEAM" ADD CONSTRAINT "HERO_TEAM_PK" PRIMARY KEY ("TEAM_NAME")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1 BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
+  TABLESPACE "USERS"  ENABLE;
+ 
+  ALTER TABLE "F16S5707G2"."HERO_TEAM" MODIFY ("TEAM_NAME" NOT NULL ENABLE);
