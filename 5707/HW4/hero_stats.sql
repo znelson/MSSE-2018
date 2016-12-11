@@ -1,3 +1,5 @@
+DROP TABLE HW4_HERO_COMBO_CARD_PAIR;
+
 DECLARE
 BEGIN
 ops.go(
@@ -9,6 +11,9 @@ ops.mjoin_ra(
 	'HW4_HERO_COMBO_CARD_PAIR'));
 END;
 /
+
+----------------------------------------------------------------------
+----------------------------------------------------------------------
 
 --DECLARE
 --BEGIN
@@ -30,12 +35,14 @@ END;
 --END;
 --/
 
+DROP TABLE HW4_HERO_COMBO_ID_W_CLASS_STAT;
+
 DECLARE
 BEGIN
 ops.go(
 ops.group_ra(
 	'HW4_HERO_COMBO_CARD_PAIR',
-	'ID', 
+	'COMBO_ID', 
 	'XMEN_CARD_TYPE_COUNT = count(case when team = ''X-Men'' then 1 else null end), 
 AVENGERS_CARD_TYPE_COUNT = count(case when team = ''Avengers'' then 1 else null end), 
 SPIDERFRIENDS_CARD_TYPE_COUNT = count(case when team = ''Spider-Friends'' then 1 else null end), 
@@ -55,12 +62,17 @@ TECH_CARD_COUNT = sum(case when class = ''Tech'' then COUNT else 0 end)',
 END;
 /
 
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+
+DROP TABLE HW4_HERO_COMBO_ID_W_HERO_STAT;
+
 DECLARE
 BEGIN
 ops.go(
 ops.group_ra(
 	'HW4_HERO_COMBO_MEMB_WNAME',
-	'ID',
+	'COMBO_ID',
 	'HERO_COUNT = count(*), 
 MALE_HERO_COUNT = count(case when HERO_GENDER = ''Male'' then 1 else null end), 
 FEMALE_HERO_COUNT = count(case when HERO_GENDER = ''Female'' then 1 else null end)', 
@@ -68,20 +80,19 @@ FEMALE_HERO_COUNT = count(case when HERO_GENDER = ''Female'' then 1 else null en
 END;
 /
 
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+
+DROP TABLE HW4_HERO_COMBO_W_ALL_STAT;
+
 DECLARE
 BEGIN
 ops.go(
 ops.mjoin_ra(
 	'HW4_HERO_COMBO_ID_W_CLASS_STAT',
 	'HW4_HERO_COMBO_ID_W_HERO_STAT',
-	'ID',
-	'ID',
+	'COMBO_ID',
+	'COMBO_ID',
 	'HW4_HERO_COMBO_W_ALL_STAT'));
 END;
 /
-
-
-
-
-
-
