@@ -1,69 +1,153 @@
 
 MODULE main
 	VAR
-		-- input variables
-		
-		-- input variables representing pedestrian walk requests in two directions
+
+		------------------------------------------------------------------------------------------------------------------------
+		-- TRAFFIC LIGHT CONTROLLER
+		------------------------------------------------------------------------------------------------------------------------
+
+		-- General behavior overview:
+
+		-- The traffic light controls 4 output variables representing a car light and walk light in each of 2 directions, NS and EW.
+		-- Under normal operation, the car light will remain green in one direction until an input value requires that it stop
+		-- showing green. In this way, time has been abstracted to state transitions. Green lights will be displayed for a variable
+		-- amount of time by remaining green until something prevents them from remaining green.
+
+		-- If a car light is displaying green, it must first display yellow before it can turn red. When a car light turns from
+		-- green to yellow to red, there will be a period where the car lights in both directions display red before the opposite
+		-- direction can turn green. This quiet period allows stragglers to clear the intersection.
+
+		-- Events that will stop a green light are: cars waiting in the opposite direction, pedestrians waiting in the opposite
+		-- direction, and an emergency in any direction. When a light is green and an input requires the light to change, it will
+		-- first turn yellow for one state, then red. In an emergency (in either direction), all lights turn red (passing through
+		-- yellow if they were green) until the emergency has passed. If a pedestrian or car is waiting in the opposite direction,
+		-- then the opposite direction light will turn green to allow the vehicles and pedestrians to pass.
+
+		-- Note on emergency handling: We chose to change all lights to red when an emergency vehicle is present in either direction.
+		-- Some may argue that the light should turn green in the direction of the emergency to allow emergency vehicles to pass.
+		-- Our model could be modified to exhibit this behavior through some minor modifications to the transition behavior on the
+		-- trafficMode state variable.
+
+		-- The pedestrian walk light is tied closely to the car lights. When the car light is green, the corresponding (same
+		-- direction) walk light will turn to "walk". When the car light is yellow or red, the corresponding (same direction) walk
+		-- light will turn to "stop".
+
+		-- Internally, the traffic light tracks a "trafficMode" state variable. This state variable is a simple representation of
+		-- which output lights should be turned on. It cycles through 6 modes in a deterministic loop:
+		--	* NSGo: The NS car light is green
+		--	* NSSlow: The NS car light is yellow
+		--	* NSStop: All lights are red for a quiet period before the EW light turns green
+		--	* EWGo: The EW car light is green
+		--	* EWSlow: The EW car light is yellow
+		--	* EWStop: All lights are red for a quiet period before the NS light turns green
+
+		-- In case of no emergency, no pedestrians, and no cars waiting, the trafficMode can remain in NSGo or EWGo indefinitely.
+		-- An emergency, an opposite direction waiting pedestrian, or an opposite direction waiting car will kick the trafficMode
+		-- out of NSGo or EWGo to proceed through the cycle. In case of an emergency in either direction, trafficMode  can remain
+		-- in NSStop or EWStop indefinitely. Once the emergency is cleared, the trafficMode will resume its cycle. The simple cycle
+		-- between NS and EW ensures that interruptions, such as emergencies, do not cause a bias for traffic in one direction or
+		-- the other.
+
+
+		------------------------------------------------------------------------------------------------------------------------
+		-- Input Variables
+		-- These values come from the environment. The model does not restrict these values in any way.
+		------------------------------------------------------------------------------------------------------------------------
+				
+		-- These booleans indicate if a pedestrian is waiting to walk across in either of the two directions. When a
+		-- pedestrian is waiting
+		-- In a normal intersection a walk request probably does not cancel until the walk light turned on. For this model
+		-- we assume that this behavior is outside of the traffic light controller. Later, JUSTICE statements will
+		-- enforce that the pedestrian walk requests turn off and on infinitely often in a fair run.
 		inNSWalkRequest : boolean;
-		inWEWalkRequest : boolean;
+		inEWWalkRequest : boolean;
 
-		-- input variables representing emergency vehicle presence in two directions
+		-- These booleans indicate if an emergency vehicle is present in either of the two directions.
 		inNSEmergency : boolean;
-		inWEEmergency : boolean;
+		inEWEmergency : boolean;
 
-		-- input variables representing cars waiting in two directions
+		-- These booleans indicate if car(s) are waiting at the intersection in in either of the two directions.
 		inNSCarsWaiting : boolean;
-		inWECarsWaiting : boolean;
+		inEWCarsWaiting : boolean;
 
-		-- output variables
 
-		-- output variables representing the color of the traffic lights in two directions
+
+		------------------------------------------------------------------------------------------------------------------------
+		-- Output Variables
+		-- These values are entirely controlled by the traffic light controller.
+		------------------------------------------------------------------------------------------------------------------------
+
+		-- These enumeration output variables represent the color of the car light in each of the two directions.
 		outNSCarLight : {Green, Yellow, Red};
-		outWECarLight : {Green, Yellow, Red};
+		outEWCarLight : {Green, Yellow, Red};
 
-		-- output variables representing the state of the pedestrian walk lights in two directions
+		-- These enumeration output variables represent the state of the pedestrian light in each of the two directions.
 		outNSWalkLight : {Walk, Stop};
-		outWEWalkLight : {Walk, Stop};
+		outEWWalkLight : {Walk, Stop};
 
-		-- state variables
+		------------------------------------------------------------------------------------------------------------------------
+		-- State Variables
+		-- These values are internal to the traffic light controller to enable its behavior. Specs about the traffic light
+		-- controller's behavior do not reference these variables.
+		------------------------------------------------------------------------------------------------------------------------
 
-		trafficMode : {NSGo, NSSlow, NSStop, WEGo, WESlow, WEStop, ResetTrafficMode};
+		-- This is an abstraction of the current state of the traffic light.
+		-- ResetTrafficMode: The initial state. All lights will be red.
+		-- NSGo: The NS car light is green. The NS walk light is "walk".
+		-- NSSlow: The NS car light is yellow. The NS walk light is "stop".
+		-- NSStop: All lights are red for a quiet period before the EW light turns green.
+		-- EWGo: The EW car light is green. The EW walk light is "walk".
+		-- EWSlow: The EW car light is yellow. The EW walk light is "stop".
+		-- EWStop: All lights are red for a quiet period before the NS light turns green.
+		trafficMode : {NSGo, NSSlow, NSStop, EWGo, EWSlow, EWStop, ResetTrafficMode};
 
 	DEFINE
-		emergency := inNSEmergency | inWEEmergency;
+		-- Convenience definition to represent an emergency in either direction. Because an emergency in either direction
+		-- is handled by moving both lights to red until the emergency passes, this simplifies some of the trafficMode
+		-- transition logic below.
+		emergency := inNSEmergency | inEWEmergency;
 		
-		redEverywhere := outNSCarLight = Red & outWECarLight = Red;
+		-- Convenience definition to represent both car lights showing red.
+		redEverywhere := outNSCarLight = Red & outEWCarLight = Red;
 		
-		yellowAnywhere := trafficMode in {NSSlow, WESlow};
+		-- Convenience definition to represent either car light showing yellow.
+		yellowAnywhere := outNSCarLight = Yellow | outEWCarLight = Yellow;
 		
-		greenAnywhere := trafficMode in {NSGo, WEGo};
+		-- Convenience definition to represent either car light showing green.
+		greenAnywhere := outNSCarLight = Green | outEWCarLight = Green;
 
-		waitingWE := inWEWalkRequest | inWECarsWaiting;
-
+		-- Convenience definition to represent a car or pedestrian waiting in the NS direction.
 		waitingNS := inNSWalkRequest | inNSCarsWaiting;
+
+		-- Convenience definition to represent a car or pedestrian waiting in the EW direction.
+		waitingEW := inEWWalkRequest | inEWCarsWaiting;
 
 	ASSIGN
 
-
+		-- Simple cycle through the 6 traffic mode states.
+		-- Stay on a NSGo/EWGo state if nothing is waiting in the opposite direction and no emergencies.
+		-- Stay on a NSStop/EWStop state until emergencies have cleared.
 		init(trafficMode) := ResetTrafficMode;
 		next(trafficMode) :=
 			case
 				trafficMode=ResetTrafficMode & !emergency		: NSGo;
 
-				trafficMode=NSGo & (waitingWE | emergency)		: NSSlow;
+				trafficMode=NSGo & (waitingEW | emergency)		: NSSlow;
 
 				trafficMode=NSSlow								: NSStop;
 
-				trafficMode=NSStop & !emergency : WEGo;
-				trafficMode=WEGo & (waitingNS | emergency)		: WESlow;
+				trafficMode=NSStop & !emergency					: EWGo;
 
-				trafficMode=WESlow								: WEStop;
+				trafficMode=EWGo & (waitingNS | emergency)		: EWSlow;
 
-				trafficMode=WEStop & !emergency					: NSGo;
+				trafficMode=EWSlow								: EWStop;
+
+				trafficMode=EWStop & !emergency					: NSGo;
 
 				TRUE											: trafficMode;
 			esac;
 
+		-- Set the NS car light output based on the trafficMode state variable.
 		init(outNSCarLight) := Red;
 		next(outNSCarLight) := 
 			case
@@ -72,14 +156,16 @@ MODULE main
 				TRUE											: Red;
 			esac;
 
-		init(outWECarLight) := Red;
-		next(outWECarLight) := 
+		-- Set the EW car light output based on the trafficMode state variable.
+		init(outEWCarLight) := Red;
+		next(outEWCarLight) := 
 			case
-				next(trafficMode)=WEGo							: Green;
-				next(trafficMode)=WESlow						: Yellow;
+				next(trafficMode)=EWGo							: Green;
+				next(trafficMode)=EWSlow						: Yellow;
 				TRUE											: Red;
 			esac;
 
+		-- Set the NS walk light output based on the trafficMode state variable.
 		init(outNSWalkLight) := Stop;
 		next(outNSWalkLight) := 
 			case
@@ -87,10 +173,11 @@ MODULE main
 				TRUE											: Stop;
 			esac;
 
-		init(outWEWalkLight) := Stop;
-		next(outWEWalkLight) := 
+		-- Set the EW walk light output based on the trafficMode state variable.
+		init(outEWWalkLight) := Stop;
+		next(outEWWalkLight) := 
 			case
-				next(trafficMode)=WEGo							: Walk;
+				next(trafficMode)=EWGo							: Walk;
 				TRUE											: Stop;
 			esac;
 
@@ -99,222 +186,190 @@ MODULE main
 	JUSTICE !emergency;
 
 	-- Justice statement to prevent infinite cars or pedestrians waiting in either direction.
-	JUSTICE !waitingWE;
-	JUSTICE waitingWE;
+	JUSTICE !waitingEW;
+	JUSTICE waitingEW;
 	JUSTICE !waitingNS;
 	JUSTICE waitingNS;
 
 
+	------------------------------------------------------------------------------------------------------------------------
 	-- Liveness properties:
-	-----------------------
+	------------------------------------------------------------------------------------------------------------------------
 
-	-- If cars are waiting, they will eventually get to go (or stop waiting)
+	-- If cars are waiting, they shall eventually get to go (or stop waiting).
 	CTLSPEC AG(inNSCarsWaiting -> AF(outNSCarLight = Green | !inNSCarsWaiting))
-	CTLSPEC AG(inWECarsWaiting -> AF(outWECarLight = Green | !inWECarsWaiting))
+	CTLSPEC AG(inEWCarsWaiting -> AF(outEWCarLight = Green | !inEWCarsWaiting))
 
-	-- If pedestrians are waiting, they will eventually get to walk (or stop waiting)
+	-- If pedestrians are waiting, they shall eventually get to walk (or stop waiting).
 	CTLSPEC AG(inNSWalkRequest -> AF(outNSWalkLight = Walk | !inNSWalkRequest))
-	CTLSPEC AG(inNSWalkRequest -> AF(outWEWalkLight = Walk | !inNSWalkRequest))
+	CTLSPEC AG(inNSWalkRequest -> AF(outEWWalkLight = Walk | !inNSWalkRequest))
 
-	
+	------------------------------------------------------------------------------------------------------------------------
 	-- Safety properties:
-	---------------------
+	------------------------------------------------------------------------------------------------------------------------
 
-	-- One of the two directions always show a Red light
-	CTLSPEC AG(outNSCarLight = Red | outWECarLight = Red)
-	CTLSPEC AG(outNSWalkLight = Stop | outWEWalkLight = Stop)
+	-- One of the two car lights shall display red at any time.
+	CTLSPEC AG(outNSCarLight = Red | outEWCarLight = Red)
+	CTLSPEC AG(outNSWalkLight = Stop | outEWWalkLight = Stop)
 
-	-- When pedestrians have a Walk light, the opposite direction car light is Red
-	CTLSPEC AG(outNSWalkLight = Walk -> outWECarLight = Red)
-	CTLSPEC AG(outWEWalkLight = Walk -> outNSCarLight = Red)
+	-- The traffic light shall show a red car light in the opposite direction when pedestrians have a walk light.
+	CTLSPEC AG(outNSWalkLight = Walk -> outEWCarLight = Red)
+	CTLSPEC AG(outEWWalkLight = Walk -> outNSCarLight = Red)
 
-	-- Immediately after a Yellow light, all lights turn Red
+	-- If a car light is yellow, all car lights shall turn red in the next step.
 	CTLSPEC AG(outNSCarLight = Yellow -> AX redEverywhere)
-	CTLSPEC AG(outWECarLight = Yellow -> AX redEverywhere)
+	CTLSPEC AG(outEWCarLight = Yellow -> AX redEverywhere)
 
-	
 	-- Emergency vehicles:
-	----------------------
 
-	-- If an emergency vehicle arrives and a light is Green, all lights will turn Red in exactly 2 steps
+	-- If an emergency vehicle arrives and a car light is green, all car lights shall turn red in exactly 2 steps.
 	CTLSPEC AG((emergency & greenAnywhere) -> AX(AX(redEverywhere)))
-	-- If an emergency vehicle arrives and a light is Yellow, all lights will turn Red in exactly 1 step
+
+	-- If an emergency vehicle arrives and a car light is yellow, all car lights shall turn red in exactly 1 step.
 	CTLSPEC AG((emergency & yellowAnywhere) -> AX(redEverywhere))
-	-- If an emergency vehicle arrives and all lights are Red, all lights will remain Red in the next step
+
+	-- If an emergency vehicle arrives and all car lights are red, all car lights shall remain red in the next step
 	CTLSPEC AG((emergency & redEverywhere) -> AX(redEverywhere))
 
-	-- If there are no emergency vehicles, and no cars or pedestrians waiting, lights will remain Green.
-	CTLSPEC AG(!emergency & outNSCarLight = Green & !waitingWE -> AX(outNSCarLight = Green))
-	CTLSPEC AG(!emergency & outWECarLight = Green & !waitingNS -> AX(outWECarLight = Green))
+	-- If there are no emergency vehicles, and no cars or pedestrians waiting, a green car light shall remain green.
+	CTLSPEC AG(!emergency & outNSCarLight = Green & !waitingEW -> AX(outNSCarLight = Green))
+	CTLSPEC AG(!emergency & outEWCarLight = Green & !waitingNS -> AX(outEWCarLight = Green))
 
-	-- Each light will go to Yellow between Green and Red
+	-- Each car light shall display to yellow between displaying green and red. (That is, a car light shall not transition from green to red directly).
 	LTLSPEC G(Y(outNSCarLight = Green) & X(outNSCarLight = Red) -> outNSCarLight = Yellow)
-	LTLSPEC G(Y(outWECarLight = Green) & X(outWECarLight = Red) -> outWECarLight = Yellow)
+	LTLSPEC G(Y(outEWCarLight = Green) & X(outEWCarLight = Red) -> outEWCarLight = Yellow)
 
 
+	------------------------------------------------------------------------------------------------------------------------
 	-- Anti-properties:
-	-------------------
+	------------------------------------------------------------------------------------------------------------------------
 
-	-- The lights can fail to cycle (eventually) from Green North-South -> Green West-East -> Green North-South
+	-- The lights can fail to cycle (eventually) from green NS -> green WE -> green NS.
 	-- ("The lights are stuck!")
-	CTLSPEC !EF(outWECarLight = Green & EF(outNSCarLight = Green & EF(outWECarLight = Green)))
+	CTLSPEC !AF(outEWCarLight = Green -> EF(outNSCarLight = Green -> EF(outEWCarLight = Green)))
 
-	-- specification !(EF (outWECarLight = Green & EF (outNSCarLight = Green & EF outWECarLight = Green)))  is false
+	-- The following counterexample only shows the starting state. From that starting state, all futures involve the traffic lights turning green
+	-- in both directions infinitely often. We can feel confident in this behavior because the cycle of the trafficMode variable alternates between
+	-- NS and EW, and the JUSTICE statements enforce that all fair paths include pedestrians and/or cars waiting (and not waiting) infinitely often
+	-- in both directions.
+
+	-- specification !(AF (outEWCarLight = Green -> EF (outNSCarLight = Green -> EF outEWCarLight = Green)))  is false
 	-- as demonstrated by the following execution sequence
 				-- Trace Description: CTL Counterexample 
 				-- Trace Type: Counterexample 
 				-- -> State: 1.1 <-
 				--   inNSWalkRequest = FALSE
-				--   inWEWalkRequest = FALSE
+				--   inEWWalkRequest = FALSE
 				--   inNSEmergency = FALSE
-				--   inWEEmergency = FALSE
+				--   inEWEmergency = FALSE
 				--   inNSCarsWaiting = FALSE
-				--   inWECarsWaiting = FALSE
+				--   inEWCarsWaiting = FALSE
 				--   outNSCarLight = Red
-				--   outWECarLight = Red
+				--   outEWCarLight = Red
 				--   outNSWalkLight = Stop
-				--   outWEWalkLight = Stop
+				--   outEWWalkLight = Stop
 				--   trafficMode = ResetTrafficMode
+				--   waitingEW = FALSE
 				--   waitingNS = FALSE
-				--   waitingWE = FALSE
 				--   greenAnywhere = FALSE
 				--   yellowAnywhere = FALSE
 				--   redEverywhere = TRUE
 				--   emergency = FALSE
-				-- -> State: 1.2 <-
-				--   inWEWalkRequest = TRUE
-				--   outNSCarLight = Green
-				--   outNSWalkLight = Walk
-				--   trafficMode = NSGo
-				--   waitingWE = TRUE
-				--   greenAnywhere = TRUE
-				--   redEverywhere = FALSE
-				-- -> State: 1.3 <-
-				--   inWEWalkRequest = FALSE
-				--   outNSCarLight = Yellow
-				--   outNSWalkLight = Stop
-				--   trafficMode = NSSlow
-				--   waitingWE = FALSE
-				--   greenAnywhere = FALSE
-				--   yellowAnywhere = TRUE
-				-- -> State: 1.4 <-
-				--   outNSCarLight = Red
-				--   trafficMode = NSStop
-				--   yellowAnywhere = FALSE
-				--   redEverywhere = TRUE
-				-- -- Loop starts here
-				-- -> State: 1.5 <-
-				--   outWECarLight = Green
-				--   outWEWalkLight = Walk
-				--   trafficMode = WEGo
-				--   greenAnywhere = TRUE
-				--   redEverywhere = FALSE
-				-- -> State: 1.6 <-
-				--   inNSWalkRequest = TRUE
-				--   waitingNS = TRUE
-				-- -> State: 1.7 <-
-				--   inNSWalkRequest = FALSE
-				--   outWECarLight = Yellow
-				--   outWEWalkLight = Stop
-				--   trafficMode = WESlow
-				--   waitingNS = FALSE
-				--   greenAnywhere = FALSE
-				--   yellowAnywhere = TRUE
-				-- -> State: 1.8 <-
-				--   outWECarLight = Red
-				--   trafficMode = WEStop
-				--   yellowAnywhere = FALSE
-				--   redEverywhere = TRUE
-				-- -> State: 1.9 <-
-				--   outNSCarLight = Green
-				--   outNSWalkLight = Walk
-				--   trafficMode = NSGo
-				--   greenAnywhere = TRUE
-				--   redEverywhere = FALSE
-				-- -> State: 1.10 <-
-				--   inWEWalkRequest = TRUE
-				--   waitingWE = TRUE
-				-- -> State: 1.11 <-
-				--   inWEWalkRequest = FALSE
-				--   outNSCarLight = Yellow
-				--   outNSWalkLight = Stop
-				--   trafficMode = NSSlow
-				--   waitingWE = FALSE
-				--   greenAnywhere = FALSE
-				--   yellowAnywhere = TRUE
-				-- -> State: 1.12 <-
-				--   outNSCarLight = Red
-				--   trafficMode = NSStop
-				--   yellowAnywhere = FALSE
-				--   redEverywhere = TRUE
-				-- -> State: 1.13 <-
-				--   outWECarLight = Green
-				--   outWEWalkLight = Walk
-				--   trafficMode = WEGo
-				--   greenAnywhere = TRUE
-				--   redEverywhere = FALSE
+
+
 
 	-- If you are sitting at a Red light, you are guaranteed a Green light within 4 steps
-	CTLSPEC AG(outWECarLight = Red -> AX(outWECarLight = Green | AX(outWECarLight = Green | AX(outWECarLight = Green | AX(outWECarLight = Green)))))
+	CTLSPEC AG((outEWCarLight = Red & inEWCarsWaiting = TRUE) -> AX(outEWCarLight = Green | AX(outEWCarLight = Green | AX(outEWCarLight = Green | AX(outEWCarLight = Green)))))
 
-	-- specification AG (outWECarLight = Red -> AX (outWECarLight = Green | AX (outWECarLight = Green | AX (outWECarLight = Green | AX outWECarLight = Green))))  is false
+	-- The following counterexample shows a situation where a car waiting in the EW direction may need to wait longer than 4 states for a
+	-- green car light because emergencies are blocking the intersection.
+	-- State 2.2: There is a car waiting in the EW direction. The EW car light is red while the NS car light is green.
+	-- State 2.3: The the NS car light turns yellow, so the EW car light must remain red.
+	-- State 2.4: The NS car light has turned red, but the EW car light must remain red for the quiet period.
+	--            Also an emergency has appeared in the NS direction, forcing the car lights both to remain red until the emergency is cleared.
+	-- State 2.5: No change, the emergency is still present so the both car lights remain red.
+	-- State 2.6: The NS emergency is cleared, so the EW car light is free to transition to green in the next state.
+	-- At this point, 4 states have passed from 2.2 to 2.6 without the car waiting in the EW direction getting a green light.
+
+	-- specification AG ((outEWCarLight = Red & inEWCarsWaiting = TRUE) -> AX (outEWCarLight = Green | AX (outEWCarLight = Green | AX (outEWCarLight = Green | AX outEWCarLight = Green))))  is false
 	-- as demonstrated by the following execution sequence
 				-- Trace Description: CTL Counterexample 
 				-- Trace Type: Counterexample 
 				-- -> State: 2.1 <-
 				--   inNSWalkRequest = FALSE
-				--   inWEWalkRequest = FALSE
+				--   inEWWalkRequest = FALSE
 				--   inNSEmergency = FALSE
-				--   inWEEmergency = FALSE
+				--   inEWEmergency = FALSE
 				--   inNSCarsWaiting = FALSE
-				--   inWECarsWaiting = FALSE
+				--   inEWCarsWaiting = FALSE
 				--   outNSCarLight = Red
-				--   outWECarLight = Red
+				--   outEWCarLight = Red
 				--   outNSWalkLight = Stop
-				--   outWEWalkLight = Stop
+				--   outEWWalkLight = Stop
 				--   trafficMode = ResetTrafficMode
+				--   waitingEW = FALSE
 				--   waitingNS = FALSE
-				--   waitingWE = FALSE
 				--   greenAnywhere = FALSE
 				--   yellowAnywhere = FALSE
 				--   redEverywhere = TRUE
 				--   emergency = FALSE
-				-- -- Loop starts here
 				-- -> State: 2.2 <-
+				--   inEWCarsWaiting = TRUE
 				--   outNSCarLight = Green
 				--   outNSWalkLight = Walk
 				--   trafficMode = NSGo
+				--   waitingEW = TRUE
 				--   greenAnywhere = TRUE
 				--   redEverywhere = FALSE
-				-- -- Loop starts here
 				-- -> State: 2.3 <-
-				-- -- Loop starts here
+				--   inEWCarsWaiting = FALSE
+				--   outNSCarLight = Yellow
+				--   outNSWalkLight = Stop
+				--   trafficMode = NSSlow
+				--   waitingEW = FALSE
+				--   greenAnywhere = FALSE
+				--   yellowAnywhere = TRUE
 				-- -> State: 2.4 <-
+				--   inNSEmergency = TRUE
+				--   outNSCarLight = Red
+				--   trafficMode = NSStop
+				--   yellowAnywhere = FALSE
+				--   redEverywhere = TRUE
+				--   emergency = TRUE
 				-- -> State: 2.5 <-
+				-- -> State: 2.6 <-
+				--   inNSEmergency = FALSE
+				--   emergency = FALSE
+
+
 
 
 	-- Walk lights can be on in both directions
 	-- ("This intersection eventually lets everybody walk at once!")
-	CTLSPEC EF(outWEWalkLight = Walk & outNSWalkLight = Walk)
+	CTLSPEC EF(outEWWalkLight = Walk & outNSWalkLight = Walk)
 
-	-- specification EF (outWEWalkLight = Walk & outNSWalkLight = Walk)  is false
+	-- The following counterexample only shows the starting state. From that starting state, no futures involve both pedestrian lights
+	-- showing Walk at the same time. We can feel confident in this behavior because the outEWWalkLight and outNSWalkLight are both
+	-- based (internally) on the trafficMode state variable, and the two walk lights show Walk in mutually exclusive trafficModes.
+
+	-- specification EF (outEWWalkLight = Walk & outNSWalkLight = Walk)  is false
 	-- as demonstrated by the following execution sequence
 				-- Trace Description: CTL Counterexample 
 				-- Trace Type: Counterexample 
 				-- -> State: 3.1 <-
 				--   inNSWalkRequest = FALSE
-				--   inWEWalkRequest = FALSE
+				--   inEWWalkRequest = FALSE
 				--   inNSEmergency = FALSE
-				--   inWEEmergency = FALSE
+				--   inEWEmergency = FALSE
 				--   inNSCarsWaiting = FALSE
-				--   inWECarsWaiting = FALSE
+				--   inEWCarsWaiting = FALSE
 				--   outNSCarLight = Red
-				--   outWECarLight = Red
+				--   outEWCarLight = Red
 				--   outNSWalkLight = Stop
-				--   outWEWalkLight = Stop
+				--   outEWWalkLight = Stop
 				--   trafficMode = ResetTrafficMode
 				--   waitingNS = FALSE
-				--   waitingWE = FALSE
+				--   waitingEW = FALSE
 				--   greenAnywhere = FALSE
 				--   yellowAnywhere = FALSE
 				--   redEverywhere = TRUE
