@@ -4,7 +4,7 @@ DECLARE
 BEGIN
 ops.go(
 ops.mjoin_ra(
-	'HW4_HERO_COMBO_MEMB_WNAME',
+	'HW4_HERO_COMBO_MEMBERSHIP',
 	'HERO_CARD',
 	'HERO_NAME',
 	'HERO',
@@ -71,7 +71,7 @@ DECLARE
 BEGIN
 ops.go(
 ops.group_ra(
-	'HW4_HERO_COMBO_MEMB_WNAME',
+	'HW4_HERO_COMBO_MEMBERSHIP',
 	'COMBO_ID',
 	'HERO_COUNT = count(*), 
 MALE_HERO_COUNT = count(case when HERO_GENDER = ''Male'' then 1 else null end), 
