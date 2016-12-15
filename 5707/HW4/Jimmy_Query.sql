@@ -90,7 +90,7 @@ exec ops.go(ops.mjoin_ra('JIM_REDDEST_56COMBO_PROJECT', 'HW4_HERO_COMBO_W_ALL_ST
 
 
 
---6. How many 6- hero combos are there that are gender balance (i.e. 3 females in 6-combo)
+--6. How many 6- hero combos are there that are gender balance (3 females in 6-combo)?
 DROP TABLE JIM_GENDER_BALANCED_COMBO;
 exec ops.go(ops.filter_ra('HW4_HERO_COMBO_W_ALL_STAT','HERO_COUNT=6 AND FEMALE_HERO_COUNT=3','JIM_TEMP1'));
 exec ops.go(ops.project_ra('JIM_TEMP1','COMBO_ID, FEMALE_HERO_COUNT','JIM_GENDER_BALANCED_COMBO'));
